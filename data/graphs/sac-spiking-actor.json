@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "id": "sac-spiking-actor",
+  "name": "Spiking SAC actor",
+  "description": "Continuous-control actor with a split action head.",
+  "updated_at": "2026-09-24T11:55:21Z",
+  "nodes": [
+    {
+      "id": "input",
+      "kind": "input",
+      "label": "Observation",
+      "position": {
+        "x": 30.0,
+        "y": 190.0
+      },
+      "params": {
+        "features": 8
+      },
+      "outputs": [
+        {
+          "id": "out",
+          "label": "features",
+          "width": 8
+        }
+      ],
+      "trainable": false,
+      "compute_gradients": false,
+      "checkpoint_id": null
+    },
+    {
+      "id": "linear1",
+      "kind": "linear",
+      "label": "Linear projection",
+      "position": {
+        "x": 285.0,
+        "y": 190.0
+      },
+      "params": {
+        "input_features": 8,
+        "output_features": 64,
+        "bias": true
+      },
+      "outputs": [
+        {
+          "id": "out",
+          "label": "64 channels",
+          "width": 64
+        }
+      ],
+      "trainable": true,
+      "compute_gradients": true,
+      "checkpoint_id": null
+    },
+    {
+      "id": "lif1",
+      "kind": "lif",
+      "label": "LIF population",
+      "position": {
+        "x": 550.0,
+        "y": 190.0
+      },
+      "params": {
+        "neurons": 64,
+        "threshold": 0.5,
+        "tau_mem": 25
+      },
+      "outputs": [
+        {
+          "id": "out",
+          "label": "64 spikes",
+          "width": 64
+        }
+      ],
+      "trainable": true,
+      "compute_gradients": true,
+      "checkpoint_id": null
+    },
+    {
+      "id": "linear2",
+      "kind": "linear",
+      "label": "Action projection",
+      "position": {
+        "x": 815.0,
+        "y": 190.0
+      },
+      "params": {
+        "input_features": 64,
+        "output_features": 10,
+        "bias": true
+      },
+      "outputs": [
+        {
+          "id": "out",
+          "label": "10 channels",
+          "width": 10
+        }
+      ],
+      "trainable": true,
+      "compute_gradients": true,
+      "checkpoint_id": null
+    },
+    {
+      "id": "split",
+      "kind": "split",
+      "label": "Split action head",
+      "position": {
+        "x": 1080.0,
+        "y": 190.0
+      },
+      "params": {
+        "input_width": 10
+      },
+      "outputs": [
+        {
+          "id": "mean",
+          "label": "Mean",
+          "width": 5
+        },
+        {
+          "id": "log_std",
+          "label": "Log std",
+          "width": 5
+        }
+      ],
+      "trainable": false,
+      "compute_gradients": true,
+      "checkpoint_id": null
+    },
+    {
+      "id": "mean",
+      "kind": "output",
+      "label": "Action mean",
+      "position": {
+        "x": 1375.0,
+        "y": 85.0
+      },
+      "params": {
+        "features": 5
+      },
+      "outputs": [],
+      "trainable": false,
+      "compute_gradients": true,
+      "checkpoint_id": null
+    },
+    {
+      "id": "std",
+      "kind": "output",
+      "label": "Log standard deviation",
+      "position": {
+        "x": 1375.0,
+        "y": 310.0
+      },
+      "params": {
+        "features": 5
+      },
+      "outputs": [],
+      "trainable": false,
+      "compute_gradients": true,
+      "checkpoint_id": null
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "input",
+      "target": "linear1",
+      "source_handle": "out",
+      "target_handle": "in"
+    },
+    {
+      "id": "e2",
+      "source": "linear1",
+      "target": "lif1",
+      "source_handle": "out",
+      "target_handle": "in"
+    },
+    {
+      "id": "e3",
+      "source": "lif1",
+      "target": "linear2",
+      "source_handle": "out",
+      "target_handle": "in"
+    },
+    {
+      "id": "e4",
+      "source": "linear2",
+      "target": "split",
+      "source_handle": "out",
+      "target_handle": "in"
+    },
+    {
+      "id": "e5",
+      "source": "split",
+      "target": "mean",
+      "source_handle": "mean",
+      "target_handle": "in"
+    },
+    {
+      "id": "e6",
+      "source": "split",
+      "target": "std",
+      "source_handle": "log_std",
+      "target_handle": "in"
+    }
+  ]
+}

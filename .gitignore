@@ -1,0 +1,8 @@
+node_modules/
+dist/
+__pycache__/
+.venv/
+.pnpm-store/
+*.tsbuildinfo
+data/checkpoints/*
+!data/checkpoints/.gitkeep
